@@ -3,6 +3,17 @@
 A modern, lightweight range UI component with an aim towards integration
 simplicity and accessibility across all input methods.
 
+## Why Coffeescript?
+
+This module is being built in coffeescript. I am a javascript developer
+through and through. JS was and is my first love concerning programming
+languages. That said, there is nothing to be learned or served by
+dismissing Coffeescript outright and it would be unfair and unjust of me
+to do so without giving it a fair trial.
+
+This project may not forever be coffeescript, but it has just enough
+complexity to get a base understanding of coffeescripts idioms.
+
 ## License
 
 The MIT License (MIT)
