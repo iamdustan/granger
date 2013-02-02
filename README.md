@@ -16,6 +16,13 @@ to do so without giving it a fair trial.
 This project may not forever be coffeescript, but it has just enough
 complexity to get a base understanding of coffeescripts idioms.
 
+## Inspiration
+
+Thanks to @seb_ly for http://jsfiddle.net/dmzk4/ which
+inspired me to pull this off right in the DOM, and Anthony Terrien for
+the beautiful demos at http://anthonyterrien.com/kontrol/
+
+
 ## License
 
 The MIT License (MIT)
