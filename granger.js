@@ -20,6 +20,9 @@
       this.canvas.setAttribute('class', 'granger');
       this.pointer.setAttribute('class', 'granger-pointer');
       this.element.style.display = 'none';
+      this.canvas.style.cursor = 'pointer';
+      this.canvas.style.mozUserSelect = 'none';
+      this.canvas.style.webkitUserSelect = 'none';
       this.element.parentNode.insertBefore(this.canvas, this.element);
       this.element.parentNode.insertBefore(this.pointer, this.element);
       this.dim = {
@@ -35,15 +38,43 @@
     };
 
     Granger.prototype._bindEvents = function() {
-      var onMousemove,
+      var onDrag, onEnd, onStart,
         _this = this;
-      onMousemove = function(e) {
-        var result;
-        result = _this.getPoint(e.x, e.y);
-        _this.update(result.x, result.y);
-        return _this.draw(result.x, result.y);
+      onStart = function(e) {
+        _this.isDragging = true;
+        return false;
       };
-      return this.canvas.addEventListener('mousemove', onMousemove, false);
+      onDrag = function(e) {
+        var result, x, y;
+        if (!_this.isDragging) {
+          return;
+        }
+        if (e.type === 'touchmove') {
+          x = e.touches[0].pageX;
+          y = e.touches[0].pageY;
+        } else {
+          x = e.x;
+          y = e.y;
+        }
+        result = _this.getPoint(x, y);
+        _this.update(result.x, result.y);
+        _this.draw(result.x, result.y);
+        e.preventDefault();
+        return false;
+      };
+      onEnd = function(e) {
+        _this.isDragging = false;
+        return false;
+      };
+      this.canvas.addEventListener('mousedown', onStart, false);
+      this.canvas.addEventListener('mousemove', onDrag, false);
+      this.canvas.addEventListener('mouseup', onEnd, false);
+      this.pointer.addEventListener('mousedown', onStart, false);
+      this.pointer.addEventListener('mousemove', onDrag, false);
+      this.pointer.addEventListener('mouseup', onEnd, false);
+      this.canvas.addEventListener('touchstart', onStart, false);
+      this.canvas.addEventListener('touchmove', onDrag, false);
+      return this.canvas.addEventListener('touchend', onEnd, false);
     };
 
     Granger.prototype.getPoint = function(x, y) {

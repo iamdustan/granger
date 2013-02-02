@@ -15,6 +15,10 @@ class Granger
     @canvas.setAttribute 'class', 'granger'
     @pointer.setAttribute 'class', 'granger-pointer'
     @element.style.display = 'none'
+    @canvas.style.cursor = 'pointer'
+    @canvas.style.mozUserSelect = 'none'
+    @canvas.style.webkitUserSelect = 'none'
+
     @element.parentNode.insertBefore @canvas, @element
     @element.parentNode.insertBefore @pointer, @element
     @dim =
@@ -29,12 +33,38 @@ class Granger
     @
 
   _bindEvents: () ->
-    onMousemove = (e) =>
-      result = @getPoint e.x, e.y
+    onStart = (e) =>
+      @isDragging = true
+      return false
+
+    onDrag = (e) =>
+      return unless @isDragging
+      if e.type is 'touchmove'
+        x = e.touches[0].pageX
+        y = e.touches[0].pageY
+      else
+        x = e.x
+        y = e.y
+
+      result = @getPoint x, y
       @update result.x, result.y
       @draw result.x, result.y
+      e.preventDefault()
+      return false
 
-    @canvas.addEventListener 'mousemove', onMousemove, false
+    onEnd = (e) =>
+      @isDragging = false
+      return false
+
+    @canvas.addEventListener 'mousedown', onStart, false
+    @canvas.addEventListener 'mousemove', onDrag, false
+    @canvas.addEventListener 'mouseup', onEnd, false
+    @pointer.addEventListener 'mousedown', onStart, false
+    @pointer.addEventListener 'mousemove', onDrag, false
+    @pointer.addEventListener 'mouseup', onEnd, false
+    @canvas.addEventListener 'touchstart', onStart, false
+    @canvas.addEventListener 'touchmove', onDrag, false
+    @canvas.addEventListener 'touchend', onEnd, false
 
   getPoint: (x, y) ->
     return @pointByLimit x, y if @options.freeBounds
