@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+  html, body {
+    height: 100%;
+  }
+
+  .granger {
+    position: relative;
+    height: 15em;
+    width: 15em;
+    margin-left: -7.5em;
+    left: 50%;
+    border-radius: 15em;
+    border: solid #ccc 1em;
+  }
+
+  .granger-pointer {
+    position: absolute;
+    background: #000;
+    width: 1em;
+    height: 1em;
+    border-radius: 1em;
+    margin-top: -0.5em;
+    margin-left: -0.5em;
+    top: 50%;
+    left: 50%;
+  }
+  </style>
+</head>
+<body>
+  <form action=''>
+    <input type="number">
+  </form>
+  <script src="granger.js"></script>
+  <script>
+    new Granger(document.querySelector('input'))
+  </script>
+</body>
+</html>
