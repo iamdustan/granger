@@ -3,6 +3,8 @@
 A modern, lightweight range UI component with an aim towards integration
 simplicity and accessibility across all input methods.
 
+[View demo](http://iamdustan.github.com/granger)
+
 ## Why Coffeescript?
 
 This module is being built in coffeescript. I am a javascript developer
