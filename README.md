@@ -22,6 +22,10 @@ Thanks to @seb_ly for http://jsfiddle.net/dmzk4/ which
 inspired me to pull this off right in the DOM, and Anthony Terrien for
 the beautiful demos at http://anthonyterrien.com/kontrol/
 
+Also thanks to
+http://blog.knuthaugen.no/2012/09/headless-tests-with-buster-and-phantom/
+for the buster+phantomjs scripts.
+
 
 ## License
 
