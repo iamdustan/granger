@@ -11,4 +11,11 @@ test:
 	buster-test
 	./tests/lib/kill-server.sh buster-server && ./tests/lib/kill-server.sh phantom
 
+test-moar:
+	./tests/lib/start-server.sh
+	node ./tests/lib/browsers.js
+	buster-test
+	./tests/lib/kill-server.sh buster-server && ./tests/lib/kill-server.sh phantom
+
+
 
