@@ -1,0 +1,12 @@
+v0.1.0 / 2013-02-07ish
+-------------------
+
+* Split out the renderer to it's own class
+* Simple DOM renderer
+* Simple Canvas renderer
+
+v0.0.1 / 2013-02-05
+-------------------
+
+* Initial commit. Pretty shoddy
+
