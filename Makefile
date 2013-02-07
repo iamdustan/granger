@@ -4,7 +4,7 @@ setup:
 	npm install coffee-script
 
 watch:
-	./node_modules/coffee-script/bin/coffee -w -c granger.coffee
+	./node_modules/coffee-script/bin/coffee --output ./build --watch --compile ./lib/*.coffee
 
 test:
 	./tests/lib/start-server.sh
