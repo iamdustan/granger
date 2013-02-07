@@ -13,7 +13,7 @@
         min: Number(this.element.getAttribute('min')),
         max: Number(this.element.getAttribute('max'))
       };
-      this.renderer = new DomRenderer(this);
+      this.renderer = new CanvasRenderer(this);
     }
 
     Granger.prototype.sync = function(value) {};
