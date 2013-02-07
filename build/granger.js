@@ -9,6 +9,10 @@
     function Granger(element, options) {
       this.element = element;
       this.options = options != null ? options : {};
+      this.data = {
+        min: Number(this.element.getAttribute('min')),
+        max: Number(this.element.getAttribute('max'))
+      };
       this._createElements();
       this._bindEvents();
       this.draw(this.dim.centerX, this.dim.centerY);

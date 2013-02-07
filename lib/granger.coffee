@@ -5,6 +5,10 @@ class Granger
   @version: '0.0.1'
 
   constructor: (@element, @options = {}) ->
+    @data = {
+      min: Number @element.getAttribute('min')
+      max: Number @element.getAttribute('max')
+    }
     @_createElements()
     @_bindEvents()
     @draw(@dim.centerX, @dim.centerY)
