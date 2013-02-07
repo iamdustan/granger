@@ -3,18 +3,9 @@
 <head>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <style>
-  html, body {
-    height: 100%;
-  }
-
-  html {
-    padding: 0 5%;
-  }
-
-  body {
-    max-width: 600px;
-    margin: 0 auto;
-  }
+  html, body { height: 100%; }
+  html { padding: 0 5%; }
+  body { max-width: 600px; margin: 0 auto; }
 
   .granger {
     position: relative;
@@ -50,6 +41,7 @@
   <form action=''>
     <input type="number" min=0 max=100>
   </form>
+  <script src="build/renderer.js"></script>
   <script src="build/granger.js"></script>
   <script>
     new Granger(document.querySelector('input'))
