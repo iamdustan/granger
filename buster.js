@@ -4,11 +4,13 @@ var config = module.exports;
 config['The tests...'] = {
   rootPath: './',
   environment: 'browser', // or 'node'
+  extensions: [require('buster-coffee')],
   sources: [
-    'granger.js'
+    'build/renderer.js',
+    'build/granger.js'
   ],
   tests: [
-    'tests/*.js'
+    'tests/*.coffee'
   ]
 }
 
