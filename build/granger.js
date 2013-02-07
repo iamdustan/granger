@@ -4,7 +4,7 @@
 
   Granger = (function() {
 
-    Granger.version = '0.0.1';
+    Granger.version = '0.1.0';
 
     function Granger(element, options) {
       this.element = element;
@@ -13,119 +13,10 @@
         min: Number(this.element.getAttribute('min')),
         max: Number(this.element.getAttribute('max'))
       };
-      this._createElements();
-      this._bindEvents();
-      this.draw(this.dim.centerX, this.dim.centerY);
+      this.renderer = new DomRenderer(this);
     }
 
-    Granger.prototype._createElements = function() {
-      this.canvas = document.createElement('div');
-      this.pointer = document.createElement('div');
-      this.canvas.setAttribute('class', 'granger');
-      this.pointer.setAttribute('class', 'granger-pointer');
-      this.element.style.display = 'none';
-      this.canvas.style.cursor = 'pointer';
-      this.canvas.style.mozUserSelect = 'none';
-      this.canvas.style.webkitUserSelect = 'none';
-      this.element.parentNode.insertBefore(this.canvas, this.element);
-      this.element.parentNode.insertBefore(this.pointer, this.element);
-      this.dim = {
-        width: this.canvas.offsetWidth,
-        height: this.canvas.offsetHeight,
-        top: this.canvas.offsetTop,
-        left: this.canvas.offsetLeft
-      };
-      this.dim.centerX = this.dim.left + this.dim.width / 2;
-      this.dim.centerY = this.dim.top + this.dim.height / 2;
-      this.dim.radius = this.dim.width / 2 - this.pointer.offsetWidth / 2;
-      return this;
-    };
-
-    Granger.prototype._bindEvents = function() {
-      var onDrag, onEnd, onStart,
-        _this = this;
-      onStart = function(e) {
-        _this.isDragging = true;
-        return false;
-      };
-      onDrag = function(e) {
-        var result, x, y;
-        if (!_this.isDragging) {
-          return;
-        }
-        if (e.type === 'touchmove') {
-          x = e.touches[0].pageX;
-          y = e.touches[0].pageY;
-        } else {
-          x = e.x;
-          y = e.y;
-        }
-        result = _this.getPoint(x, y);
-        _this.update(result.x, result.y);
-        _this.draw(result.x, result.y);
-        e.preventDefault();
-        return false;
-      };
-      onEnd = function(e) {
-        _this.isDragging = false;
-        return false;
-      };
-      this.canvas.addEventListener('mousedown', onStart, false);
-      this.canvas.addEventListener('mousemove', onDrag, false);
-      this.canvas.addEventListener('mouseup', onEnd, false);
-      this.pointer.addEventListener('mousedown', onStart, false);
-      this.pointer.addEventListener('mousemove', onDrag, false);
-      this.pointer.addEventListener('mouseup', onEnd, false);
-      this.canvas.addEventListener('touchstart', onStart, false);
-      this.canvas.addEventListener('touchmove', onDrag, false);
-      return this.canvas.addEventListener('touchend', onEnd, false);
-    };
-
-    Granger.prototype.getPoint = function(x, y) {
-      if (this.options.freeBounds) {
-        return this.pointByLimit(x, y);
-      }
-      return this.pointByAngle(x, y);
-    };
-
-    Granger.prototype.update = function(x, y) {};
-
-    Granger.prototype.draw = function(x, y) {
-      this.pointer.style.left = x + 'px';
-      return this.pointer.style.top = y + 'px';
-    };
-
-    Granger.prototype.pointByAngle = function(x, y) {
-      var radians;
-      radians = Math.atan2(this.dim.centerY - y, this.dim.centerX - x);
-      x = -1 * this.dim.radius * Math.cos(radians) + this.dim.centerX;
-      y = -1 * this.dim.radius * Math.sin(radians) + this.dim.centerY;
-      return {
-        x: x,
-        y: y
-      };
-    };
-
-    Granger.prototype.pointByLimit = function(x, y) {
-      var distance, distanceSquared, dx, dy, ratio;
-      dx = x - this.dim.centerX;
-      dy = y - this.dim.centerY;
-      distanceSquared = (dx * dx)(+(dy * dy));
-      if (distanceSquared <= this.dim.radius * this.dim.radius) {
-        return {
-          x: x,
-          y: y
-        };
-      }
-      distance = Math.sqrt(distanceSquared);
-      ratio = this.dim.radius / distance;
-      x = dx * ratio + this.dim.centerX;
-      y = dy * ratio + this.dim.centerY;
-      return {
-        x: x,
-        y: y
-      };
-    };
+    Granger.prototype.sync = function(value) {};
 
     return Granger;
 
