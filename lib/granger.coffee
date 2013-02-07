@@ -9,7 +9,8 @@ class Granger
       min: Number @element.getAttribute('min')
       max: Number @element.getAttribute('max')
     }
-    @renderer = new DomRenderer @
+    #@renderer = new DomRenderer @
+    @renderer = new CanvasRenderer @
 
   sync: (value) ->
     # todo. update renderer based on value

@@ -1,6 +1,4 @@
 class Renderer
-  @version: '0.1.0'
-
   constructor: (@granger) ->
     @options = @granger.options
     @_createElements()
@@ -14,10 +12,6 @@ class Renderer
 
   sync: (x, y) ->
     # todo. calculate value and update input element
-
-  draw: (x, y) ->
-    @pointer.style.left = x + 'px'
-    @pointer.style.top = y + 'px'
 
   pointByAngle: (x, y) ->
     radians = Math.atan2(@dim.centerY - y, @dim.centerX - x)
@@ -103,6 +97,91 @@ class DomRenderer extends Renderer
     @canvas.addEventListener 'touchmove', onDrag, false
     @canvas.addEventListener 'touchend', onEnd, false
 
+  draw: (x, y) ->
+    @pointer.style.left = x + 'px'
+    @pointer.style.top = y + 'px'
+
+
+
+class CanvasRenderer extends Renderer
+  _createElements: () ->
+    @canvas = document.createElement 'canvas'
+    @canvas.setAttribute 'class', 'granger'
+    @ctx = @canvas.getContext '2d'
+    fontSize = parseInt(getComputedStyle(@granger.element).getPropertyValue('font-size'), 10)
+    @canvas.width = 15 * fontSize
+    @canvas.height = 15 * fontSize
+
+    @granger.element.style.display = 'none'
+    @canvas.style.cursor = 'pointer'
+    @canvas.style.mozUserSelect = 'none'
+    @canvas.style.webkitUserSelect = 'none'
+
+    @granger.element.parentNode.insertBefore @canvas, @element
+    @dim =
+      width: @canvas.width
+      height: @canvas.height,
+      top: @canvas.offsetTop,
+      left: @canvas.offsetLeft
+
+    @dim.centerX = @dim.width / 2
+    @dim.centerY = @dim.height / 2
+    # 6 is the line Width / 2
+    @dim.radius = @dim.width / 2 - 6
+
+
+    @draw(@dim.centerX, @dim.centerY)
+    @
+
+  _bindEvents: () ->
+    onStart = (e) =>
+      @isDragging = true
+      return false
+
+    onDrag = (e) =>
+      return unless @isDragging
+      if e.type is 'touchmove'
+        x = e.touches[0].offsetX
+        y = e.touches[0].offsetY
+      else
+        x = e.offsetX
+        y = e.offsetY
+
+      result = @getPoint x, y
+      @sync result.x, result.y
+      @draw result.x, result.y
+      e.preventDefault()
+      return false
+
+    onEnd = (e) =>
+      @isDragging = false
+      return false
+
+    @canvas.addEventListener 'mousedown', onStart, false
+    @canvas.addEventListener 'mousemove', onDrag, false
+    @canvas.addEventListener 'mouseup', onEnd, false
+    @canvas.addEventListener 'touchstart', onStart, false
+    @canvas.addEventListener 'touchmove', onDrag, false
+    @canvas.addEventListener 'touchend', onEnd, false
+
+  draw: (x, y) ->
+    # reset canvas
+    @canvas.width = @canvas.width
+
+    @ctx.strokeStyle = '#cccccc'
+    @ctx.lineWidth = 12
+
+    @ctx.beginPath()
+    @ctx.arc @dim.centerX, @dim.centerY, @dim.radius, 0, Math.PI*2, true
+    @ctx.stroke()
+
+    @ctx.strokeStyle = '#000000'
+    @ctx.lineWidth = 12
+
+    @ctx.beginPath()
+    @ctx.arc x, y, @ctx.lineWidth / 2, 0, Math.PI*2, true
+    @ctx.fill()
 
 window.DomRenderer = DomRenderer
+window.CanvasRenderer = CanvasRenderer
 
