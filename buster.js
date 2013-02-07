@@ -6,7 +6,6 @@ config['The tests...'] = {
   environment: 'browser', // or 'node'
   extensions: [require('buster-coffee')],
   sources: [
-    'build/renderer.js',
     'build/granger.js'
   ],
   tests: [

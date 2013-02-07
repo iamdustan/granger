@@ -38,15 +38,22 @@
     <h2>A modern, lightweight range UI component</h2>
   </header>
   <p>A modern, lightweight range UI component with an aim towards integration simplicity and accessibility across all input methods.</p>
+  <p>Currently has canvas and DOM renderers</p>
   <a href="https://github.com/iamdustan/granger"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_orange_ff7600.png" alt="Fork me on GitHub"></a>
 
   <form action=''>
-    <input type="number" min=0 max=100>
+    <legend>Canvas renderer</legend>
+    <input id="canvas" type="number" min=0 max=100>
   </form>
-  <script src="build/renderer.js"></script>
+
+  <form action=''>
+    <legend>DOM renderer</legend>
+    <input id="dom" type="number" min=0 max=100>
+  </form>
   <script src="build/granger.js"></script>
   <script>
-    new Granger(document.querySelector('input'))
+    var canvas = new Granger(document.getElementById('canvas'), { renderer: 'canvas' })
+    var dom = new Granger(document.getElementById('dom'), { renderer: 'dom' })
   </script>
   <script>_gaq=[['_setAccount','UA-37699943-1'],['_trackPageview']];(function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';s.parentNode.insertBefore(g,s)}(document,'script'));</script>
 </body>

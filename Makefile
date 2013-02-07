@@ -2,9 +2,10 @@
 setup:
 	mkdir node_modules
 	npm install coffee-script
+	npm install buster-coffee
 
 watch:
-	./node_modules/coffee-script/bin/coffee --output ./build --watch --compile ./lib/*.coffee
+	./node_modules/coffee-script/bin/coffee --join ./build/granger.js --watch --compile ./lib/*.coffee
 
 test:
 	./tests/lib/start-server.sh
