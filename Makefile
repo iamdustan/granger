@@ -1,8 +1,9 @@
 
 setup:
-	mkdir node_modules
+	mkdir -p node_modules
 	npm install coffee-script
 	npm install buster-coffee
+	npm install source-map-support
 
 watch:
 	./node_modules/coffee-script/bin/coffee --join ./build/granger.js --watch --compile ./lib/*.coffee
