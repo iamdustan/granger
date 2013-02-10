@@ -49,16 +49,16 @@ class DomRenderer extends Renderer
     @canvas.style.webkitUserSelect = 'none'
 
     @granger.element.parentNode.insertBefore @canvas, @element
-    @granger.element.parentNode.insertBefore @pointer, @element
+    @canvas.appendChild @pointer
+    borderWidth = parseInt(getComputedStyle(@canvas)['border-width'])
     @dim =
-      width: @canvas.offsetWidth
-      height: @canvas.offsetHeight,
-      top: @canvas.offsetTop,
-      left: @canvas.offsetLeft
+      width: @canvas.offsetWidth + borderWidth
+      height: @canvas.offsetHeight + borderWidth
+      offset: @pointer.offsetWidth
 
-    @dim.centerX = @dim.left + @dim.width / 2
-    @dim.centerY = @dim.top + @dim.height / 2
-    @dim.radius = @dim.width / 2 - @pointer.offsetWidth / 2
+    @dim.centerX = (@dim.width - borderWidth) / 2
+    @dim.centerY = (@dim.height - borderWidth) / 2
+    @dim.radius = @dim.width / 2 - @dim.offset
 
     @draw(@dim.centerX, @dim.centerY)
     @
@@ -71,11 +71,11 @@ class DomRenderer extends Renderer
     onDrag = (e) =>
       return unless @isDragging
       if e.type is 'touchmove'
-        x = e.touches[0].pageX
-        y = e.touches[0].pageY
+        x = e.touches[0].offsetX
+        y = e.touches[0].offsetY
       else
-        x = e.x
-        y = e.y
+        x = e.offsetX
+        y = e.offsetY
 
       result = @getPoint x, y
       @sync result.x, result.y
@@ -98,8 +98,8 @@ class DomRenderer extends Renderer
     @canvas.addEventListener 'touchend', onEnd, false
 
   draw: (x, y) ->
-    @pointer.style.left = x + 'px'
-    @pointer.style.top = y + 'px'
+    @pointer.style.left = x - @dim.offset + 'px'
+    @pointer.style.top = y - @dim.offset + 'px'
 
 
 
