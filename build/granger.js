@@ -120,6 +120,7 @@
     }
 
     DomRenderer.prototype._createElements = function() {
+      var borderWidth;
       this.canvas = document.createElement('div');
       this.pointer = document.createElement('div');
       this.canvas.setAttribute('class', 'granger');
@@ -129,16 +130,16 @@
       this.canvas.style.mozUserSelect = 'none';
       this.canvas.style.webkitUserSelect = 'none';
       this.granger.element.parentNode.insertBefore(this.canvas, this.element);
-      this.granger.element.parentNode.insertBefore(this.pointer, this.element);
+      this.canvas.appendChild(this.pointer);
+      borderWidth = parseInt(getComputedStyle(this.canvas)['border-width']);
       this.dim = {
-        width: this.canvas.offsetWidth,
-        height: this.canvas.offsetHeight,
-        top: this.canvas.offsetTop,
-        left: this.canvas.offsetLeft
+        width: this.canvas.offsetWidth + borderWidth,
+        height: this.canvas.offsetHeight + borderWidth,
+        offset: this.pointer.offsetWidth
       };
-      this.dim.centerX = this.dim.left + this.dim.width / 2;
-      this.dim.centerY = this.dim.top + this.dim.height / 2;
-      this.dim.radius = this.dim.width / 2 - this.pointer.offsetWidth / 2;
+      this.dim.centerX = (this.dim.width - borderWidth) / 2;
+      this.dim.centerY = (this.dim.height - borderWidth) / 2;
+      this.dim.radius = this.dim.width / 2 - this.dim.offset;
       this.draw(this.dim.centerX, this.dim.centerY);
       return this;
     };
@@ -156,11 +157,11 @@
           return;
         }
         if (e.type === 'touchmove') {
-          x = e.touches[0].pageX;
-          y = e.touches[0].pageY;
+          x = e.touches[0].pageX - e.touches[0].target.offsetLeft;
+          y = e.touches[0].pageY - e.touches[0].target.offsetTop;
         } else {
-          x = e.x;
-          y = e.y;
+          x = e.offsetX;
+          y = e.offsetY;
         }
         result = _this.getPoint(x, y);
         _this.sync(result.x, result.y);
@@ -184,8 +185,8 @@
     };
 
     DomRenderer.prototype.draw = function(x, y) {
-      this.pointer.style.left = x + 'px';
-      return this.pointer.style.top = y + 'px';
+      this.pointer.style.left = x - this.dim.offset + 'px';
+      return this.pointer.style.top = y - this.dim.offset + 'px';
     };
 
     return DomRenderer;
@@ -239,8 +240,8 @@
           return;
         }
         if (e.type === 'touchmove') {
-          x = e.touches[0].offsetX;
-          y = e.touches[0].offsetY;
+          x = e.touches[0].pageX - e.touches[0].target.offsetLeft;
+          y = e.touches[0].pageY - e.touches[0].target.offsetTop;
         } else {
           x = e.offsetX;
           y = e.offsetY;
