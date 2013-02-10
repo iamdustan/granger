@@ -8,10 +8,14 @@ setup:
 watch:
 	./node_modules/coffee-script/bin/coffee --join ./build/granger.js --watch --compile ./lib/*.coffee
 
+
 test:
-	./tests/lib/start-server.sh
-	buster-test
-	./tests/lib/kill-server.sh buster-server && ./tests/lib/kill-server.sh phantom
+	@echo "Starting buster server..."
+	@./tests/lib/start-server.sh
+	@echo "Running tests..."
+	@buster-test
+	@echo "Killing phantomjs and buster server..."
+	@./tests/lib/kill-server.sh buster-server && ./tests/lib/kill-server.sh phantom
 
 test-moar:
 	@./tests/lib/start-server.sh
