@@ -71,8 +71,8 @@ class DomRenderer extends Renderer
     onDrag = (e) =>
       return unless @isDragging
       if e.type is 'touchmove'
-        x = e.touches[0].offsetX
-        y = e.touches[0].offsetY
+        x = e.touches[0].pageX - e.touches[0].target.offsetLeft
+        y = e.touches[0].pageY - e.touches[0].target.offsetTop
       else
         x = e.offsetX
         y = e.offsetY
@@ -141,8 +141,8 @@ class CanvasRenderer extends Renderer
     onDrag = (e) =>
       return unless @isDragging
       if e.type is 'touchmove'
-        x = e.touches[0].offsetX
-        y = e.touches[0].offsetY
+        x = e.touches[0].pageX - e.touches[0].target.offsetLeft
+        y = e.touches[0].pageY - e.touches[0].target.offsetTop
       else
         x = e.offsetX
         y = e.offsetY
