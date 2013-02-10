@@ -10,11 +10,27 @@ class Granger
       max: Number @element.getAttribute('max')
     }
 
-    @renderer = new CanvasRenderer @ if @options.renderer is 'canvas'
-    @renderer = new DomRenderer @ if @options.renderer is 'dom'
+    if @options.renderer is 'canvas'
+      @renderer = new CanvasRenderer @
+
+    else @renderer = new DomRenderer @
 
   sync: (value) ->
-    # todo. update renderer based on value
+    @element.value = value
+    fireEvent(@element, 'change')
+    @
 
 window.Granger = Granger
+
+fireEvent = (() ->
+  if 'fireEvent' in Element.prototype
+    #todo. make sure this propagates in oldIE
+    return (element, event) ->
+      element.fireEvent("on#{ event }")
+
+  (element, event) ->
+    e = document.createEvent("HTMLEvents")
+    e.initEvent(event, true, true)
+    element.dispatchEvent(e)
+)()
 
