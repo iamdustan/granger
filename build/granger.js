@@ -17,14 +17,14 @@
         max: Number(this.element.getAttribute('max'))
       };
       if (this.options.renderer === 'canvas') {
-        this.renderer = new CanvasRenderer(this);
+        this.renderer = new CanvasRenderer(this, this.element.value);
       } else {
-        this.renderer = new DomRenderer(this);
+        this.renderer = new DomRenderer(this, this.element.value);
       }
     }
 
     Granger.prototype.sync = function(value) {
-      this.element.value = value;
+      this.element.value = Math.round(value);
       fireEvent(this.element, 'change');
       return this;
     };
@@ -32,8 +32,6 @@
     return Granger;
 
   })();
-
-  window.Granger = Granger;
 
   fireEvent = (function() {
     if (__indexOf.call(Element.prototype, 'fireEvent') >= 0) {
@@ -49,13 +47,27 @@
     };
   })();
 
+  window.Granger = Granger;
+
+  window.emit = fireEvent;
+
   Renderer = (function() {
 
-    function Renderer(granger) {
+    function Renderer(granger, startValue) {
+      var start,
+        _this = this;
       this.granger = granger;
       this.options = this.granger.options;
       this._createElements();
       this._bindEvents();
+      start = this.pointByValue(startValue);
+      this.draw(start.x, start.y);
+      this.sync(start.x, start.y);
+      this.granger.element.addEventListener('change', function(e) {
+        var point;
+        point = _this.pointByValue(_this.granger.element.value);
+        return _this.draw(point.x, point.y);
+      }, false);
     }
 
     Renderer.prototype._createElements = function() {
@@ -66,7 +78,37 @@
       return console.log('Error: _bindEvents not available. Renderer should not be instantiated directly');
     };
 
-    Renderer.prototype.sync = function(x, y) {};
+    Renderer.prototype.sync = function(x, y) {
+      var value;
+      value = this.valueByPoint(x, y);
+      this.granger.sync(value);
+      return this;
+    };
+
+    Renderer.prototype.valueByPoint = function(x, y) {
+      var abs, offset, percentage, radians, value;
+      abs = this.pointByAngle(x, y);
+      offset = -Math.PI / 2;
+      radians = Math.atan2(this.dim.centerY - abs.y, this.dim.centerX - abs.x);
+      if (radians < Math.PI / 2) {
+        radians = Math.PI * 2 + radians;
+      }
+      percentage = (radians + offset) / (Math.PI * 2);
+      this.granger.data.min / percentage;
+      return value = percentage * (this.granger.data.max - this.granger.data.min) + this.granger.data.min;
+    };
+
+    Renderer.prototype.pointByValue = function(value) {
+      var percentage, radians, x, y;
+      percentage = (value - this.granger.data.min) / (this.granger.data.max - this.granger.data.min);
+      radians = (percentage * 2 + 0.5) * Math.PI;
+      x = -1 * this.dim.radius * Math.cos(radians) + this.dim.centerX;
+      y = -1 * this.dim.radius * Math.sin(radians) + this.dim.centerY;
+      return {
+        x: x,
+        y: y
+      };
+    };
 
     Renderer.prototype.pointByAngle = function(x, y) {
       var radians;
@@ -83,7 +125,7 @@
       var distance, distanceSquared, dx, dy, ratio;
       dx = x - this.dim.centerX;
       dy = y - this.dim.centerY;
-      distanceSquared = (dx * dx)(+(dy * dy));
+      distanceSquared = (dx * dx) + (dy * dy);
       if (distanceSquared <= this.dim.radius * this.dim.radius) {
         return {
           x: x,

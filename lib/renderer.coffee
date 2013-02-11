@@ -5,6 +5,7 @@ class Renderer
     @_bindEvents()
     start = @pointByValue(startValue)
     @draw(start.x, start.y)
+    @sync(start.x, start.y)
     @granger.element.addEventListener('change', (e) =>
       point = @pointByValue(@granger.element.value)
       @draw point.x, point.y
@@ -18,27 +19,21 @@ class Renderer
 
   sync: (x, y) ->
     # + 1/2 Math.PI === @data.min
-    @valueByPoint(x, y)
-
-    #console.log(radians)
+    value = @valueByPoint(x, y)
+    @granger.sync value
+    @
 
   valueByPoint: (x, y) ->
     abs = @pointByAngle x, y
     offset = - Math.PI / 2
     radians = Math.atan2(@dim.centerY - abs.y, @dim.centerX - abs.x)
     if radians < Math.PI / 2
-      radians = Math.PI + (Math.PI + radians)
+      radians = Math.PI * 2 + radians
 
     percentage = (radians + offset) / (Math.PI * 2)
     (@granger.data.min / percentage)
 
     value = percentage * (@granger.data.max - @granger.data.min) + @granger.data.min
-
-    @granger.element.value = value
-    console.log(value)
-
-    @granger.sync = value
-    @
 
   pointByValue: (value) ->
     percentage = (value - @granger.data.min) / (@granger.data.max - @granger.data.min)
@@ -56,7 +51,7 @@ class Renderer
   pointByLimit: (x, y) ->
     dx = x - @dim.centerX
     dy = y - @dim.centerY
-    distanceSquared = (dx*dx) +(dy*dy)
+    distanceSquared = (dx * dx) + (dy * dy)
 
     return { x, y } if distanceSquared <= @dim.radius * @dim.radius
 

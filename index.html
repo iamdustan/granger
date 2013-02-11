@@ -6,6 +6,7 @@
   html, body { height: 100%; }
   html { padding: 0 5%; }
   body { max-width: 600px; margin: 0 auto; }
+  form { position: relative; }
 
   .granger {
     position: relative;
@@ -30,6 +31,24 @@
     top: 50%;
     left: 50%;
   }
+
+  #dom {
+    display: block !important;
+    position: absolute;
+    font-weight: bold;
+    font-size: 74px;
+    color: #000;
+    border: 0;
+    top: 50%;
+    left: 50%;
+    height: 100px;
+    width: 150px;
+    margin-top: -50px;
+    margin-left: -60px;
+    text-align: center;
+  }
+  input::-webkit-outer-spin-button,
+  input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
   </style>
 </head>
 <body>
