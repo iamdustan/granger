@@ -1,8 +1,14 @@
 class Renderer
-  constructor: (@granger) ->
+  constructor: (@granger, startValue) ->
     @options = @granger.options
     @_createElements()
     @_bindEvents()
+    start = @pointByValue(startValue)
+    @draw(start.x, start.y)
+    @granger.element.addEventListener('change', (e) =>
+      point = @pointByValue(@granger.element.value)
+      @draw point.x, point.y
+    , false)
 
   _createElements: () ->
     console.log('Error: _createElements not available. Renderer should not be instantiated directly')
@@ -11,7 +17,35 @@ class Renderer
     console.log('Error: _bindEvents not available. Renderer should not be instantiated directly')
 
   sync: (x, y) ->
-    # todo. calculate value and update input element
+    # + 1/2 Math.PI === @data.min
+    @valueByPoint(x, y)
+
+    #console.log(radians)
+
+  valueByPoint: (x, y) ->
+    abs = @pointByAngle x, y
+    offset = - Math.PI / 2
+    radians = Math.atan2(@dim.centerY - abs.y, @dim.centerX - abs.x)
+    if radians < Math.PI / 2
+      radians = Math.PI + (Math.PI + radians)
+
+    percentage = (radians + offset) / (Math.PI * 2)
+    (@granger.data.min / percentage)
+
+    value = percentage * (@granger.data.max - @granger.data.min) + @granger.data.min
+
+    @granger.element.value = value
+    console.log(value)
+
+    @granger.sync = value
+    @
+
+  pointByValue: (value) ->
+    percentage = (value - @granger.data.min) / (@granger.data.max - @granger.data.min)
+    radians = (percentage * 2 + 0.5) * Math.PI
+    x = -1 * @dim.radius * Math.cos(radians) + @dim.centerX
+    y = -1 * @dim.radius * Math.sin(radians) + @dim.centerY
+    return { x, y }
 
   pointByAngle: (x, y) ->
     radians = Math.atan2(@dim.centerY - y, @dim.centerX - x)
@@ -137,8 +171,8 @@ class CanvasRenderer extends Renderer
     onStart = (e) =>
       @isDragging = true
       return false
-
     onDrag = (e) =>
+
       return unless @isDragging
       if e.type is 'touchmove'
         x = e.touches[0].pageX - e.touches[0].target.offsetLeft

@@ -11,16 +11,14 @@ class Granger
     }
 
     if @options.renderer is 'canvas'
-      @renderer = new CanvasRenderer @
+      @renderer = new CanvasRenderer @, @element.value
 
-    else @renderer = new DomRenderer @
+    else @renderer = new DomRenderer @, @element.value
 
   sync: (value) ->
-    @element.value = value
+    @element.value = Math.round value
     fireEvent(@element, 'change')
     @
-
-window.Granger = Granger
 
 fireEvent = (() ->
   if 'fireEvent' in Element.prototype
@@ -33,4 +31,8 @@ fireEvent = (() ->
     e.initEvent(event, true, true)
     element.dispatchEvent(e)
 )()
+
+window.Granger = Granger
+window.emit = fireEvent
+
 
