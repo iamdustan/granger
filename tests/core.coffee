@@ -1,10 +1,10 @@
-buster.spec.expose() # Make some functions global
 
-element = document.createElement 'input'
-document.documentElement.appendChild element
+element = document.createElement('input')
+document.documentElement.appendChild(element)
 
 describe 'Granger Core', () ->
-  @granger = new Granger(element)
+  beforeEach () ->
+    @granger = new Granger element
 
   it 'should be defined', () ->
     expect(@granger).toBeDefined()
@@ -24,15 +24,19 @@ describe 'Granger::sync', () ->
 
   it 'should update @element based on value', () ->
     @granger.sync(100)
-    expect(@granger.element.value).toEqual(100)
+    expect(@granger.element.value).toEqual('100')
     @granger.sync(200)
-    expect(@granger.element.value).toEqual(200)
-  it 'should emit a DOM change event that propagates', (done) ->
+    expect(@granger.element.value).toEqual('200')
+
+  it 'should emit a DOM change event that propagates', () ->
     changeHandler = (e) ->
       expect(true).toEqual(true)
       document.removeEventListener('change', changeHandler, false)
-      done()
     document.addEventListener('change', changeHandler, false)
+
+    waitsFor ()->
+      changeHandler
+
     @granger.sync(50)
 
 
