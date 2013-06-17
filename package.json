@@ -1,0 +1,17 @@
+{
+  "name": "Granger",
+  "version": "0.1.0",
+  "author": "Dustan Kasten <dustan.kasten@gmail.com>",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/iamdustan/granger.git"
+  },
+  "devDependencies": {
+    "grunt": "~0.4.0",
+    "grunt-contrib-coffee": "~0.7.0",
+    "grunt-buster": "~0.2.1",
+    "matchdep": "~0.1.2",
+    "grunt-karma": "~0.4.4",
+    "grunt-contrib-watch": "~0.4.4"
+  }
+}
