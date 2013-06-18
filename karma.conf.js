@@ -4,7 +4,7 @@ basePath = '';
 
 frameworks = ['jasmine'];
 
-browsers = ['Chrome']//, 'PhantomJS'];
+browsers = ['Safari']//, 'PhantomJS'];
   /*
     Chrome
     ChromeCanary

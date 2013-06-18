@@ -62,8 +62,11 @@ class Renderer
     return { x, y }
 
   getPoint: (x, y) ->
-    return @pointByLimit x, y if @options.freeBounds
+    return @pointByLimit x, y if @options.freeBounds or @isSingleVector()
     @pointByAngle x, y
+
+  isSingleVector: () ->
+    /^(x|y)/.test @options.type
 
 
 class DomRenderer extends Renderer
@@ -127,8 +130,12 @@ class DomRenderer extends Renderer
     @canvas.addEventListener 'touchend', onEnd, false
 
   draw: (x, y) ->
-    @pointer.style.left = x - @dim.offset + 'px'
-    @pointer.style.top = y - @dim.offset + 'px'
+    @pointer.style.left = x + 'px'
+    if @isSingleVector()
+      y = 0
+    else
+      y = y - @dim.offset
+    @pointer.style.top = y + 'px'
 
 
 
@@ -138,8 +145,8 @@ class CanvasRenderer extends Renderer
     @canvas.setAttribute 'class', 'granger'
     @ctx = @canvas.getContext '2d'
     fontSize = parseInt(getComputedStyle(@granger.element).getPropertyValue('font-size'), 10)
-    @canvas.width = 15 * fontSize
-    @canvas.height = 15 * fontSize
+    @canvas.width = @options.width or 15 * fontSize
+    @canvas.height = @options.height or 15 * fontSize
 
     @granger.element.style.display = 'none'
     @canvas.style.cursor = 'pointer'
@@ -200,17 +207,29 @@ class CanvasRenderer extends Renderer
     @ctx.strokeStyle = '#cccccc'
     @ctx.lineWidth = 12
 
-    @ctx.beginPath()
-    @ctx.arc @dim.centerX, @dim.centerY, @dim.radius, 0, Math.PI*2, true
-    @ctx.stroke()
+    if @isSingleVector()
+      @ctx.lineCap = 'round'
 
-    @ctx.strokeStyle = '#000000'
-    @ctx.lineWidth = 12
+      @ctx.beginPath()
+      @ctx.moveTo @dim.centerX - @dim.radius, @ctx.lineWidth / 2
+      @ctx.lineTo @dim.centerX + @dim.radius, @ctx.lineWidth / 2
+      @ctx.stroke()
 
-    @ctx.beginPath()
-    @ctx.arc x, y, @ctx.lineWidth / 2, 0, Math.PI*2, true
-    @ctx.fill()
+      @ctx.strokeStyle = '#000000'
+      @ctx.lineWidth = 12
 
-window.DomRenderer = DomRenderer
-window.CanvasRenderer = CanvasRenderer
+      @ctx.beginPath()
+      @ctx.arc x, @ctx.lineWidth / 2, @ctx.lineWidth / 2, 0, Math.PI*2, true
+      @ctx.fill()
+    else
+      @ctx.beginPath()
+      @ctx.arc @dim.centerX, @dim.centerY, @dim.radius, 0, Math.PI*2, true
+      @ctx.stroke()
+
+      @ctx.strokeStyle = '#000000'
+      @ctx.lineWidth = 12
+
+      @ctx.beginPath()
+      @ctx.arc x, y, @ctx.lineWidth / 2, 0, Math.PI*2, true
+      @ctx.fill()
 

@@ -47,8 +47,27 @@
     margin-left: -60px;
     text-align: center;
   }
+
+  #xaxis-canvas + .granger {
+    display: block;
+    height: auto;
+    border-radius: 0;
+  }
+
+  #xaxis-dom + .granger {
+    border-radius: 0.5em;
+    display: block;
+    height: 0;
+    border-width: 0.5em;
+    margin-top: -0.5em
+  }
+
   input::-webkit-outer-spin-button,
   input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+
+  body {
+    padding-bottom: 15em;
+  }
   </style>
 </head>
 <body>
@@ -69,10 +88,22 @@
     <legend>DOM renderer</legend>
     <input id="dom" type="number" min=50 max=100>
   </form>
+
+  <form action=''>
+    <legend>X Scale renderer</legend>
+    <input id="xaxis-canvas" type="number" min=0 max=100>
+  </form>
+
+  <form action=''>
+    <legend>X Scale renderer</legend>
+    <input id="xaxis-dom" type="number" min=0 max=100>
+  </form>
   <script src="build/granger.js"></script>
   <script>
-    canvas = new Granger(document.getElementById('canvas'), { renderer: 'canvas' })
+    canvas = new Granger(document.getElementById('canvas'), { renderer: 'canvas', freeBounds: true })
     dom = new Granger(document.getElementById('dom'), { renderer: 'dom' })
+    xaxisCanvas = new Granger(document.getElementById('xaxis-canvas'), { renderer: 'canvas', type: 'x', height: 64 })
+    xaxisDom = new Granger(document.getElementById('xaxis-dom'), { renderer: 'dom', type: 'x', height: 64 })
   </script>
   <script>_gaq=[['_setAccount','UA-37699943-1'],['_trackPageview']];(function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';s.parentNode.insertBefore(g,s)}(document,'script'));</script>
 </body>
