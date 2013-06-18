@@ -27,3 +27,6 @@ describe 'Granger Core', () ->
     expect(@renderer.pointByLimit).toBeDefined()
     expect(@renderer.getPoint).toBeDefined()
 
+
+
+

@@ -5,6 +5,8 @@ class Granger
   @version: '0.1.0'
 
   constructor: (@element, @options = {}) ->
+    if typeof @element == 'string'
+        @element = document.getElementById(@element)
     @data = {
       min: Number @element.getAttribute('min')
       max: Number @element.getAttribute('max')
