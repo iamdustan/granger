@@ -8,6 +8,7 @@
     Granger.version = '0.1.0';
 
     function Granger(element, options) {
+      var value;
       this.element = element;
       this.options = options != null ? options : {};
       if (typeof this.element === 'string') {
@@ -17,10 +18,11 @@
         min: Number(this.element.getAttribute('min')),
         max: Number(this.element.getAttribute('max'))
       };
+      value = this.element.value || (this.data.max - this.data.min) / 2 + this.data.min;
       if (this.options.renderer === 'canvas') {
-        this.renderer = new CanvasRenderer(this, this.element.value);
+        this.renderer = new CanvasRenderer(this, value);
       } else {
-        this.renderer = new DomRenderer(this, this.element.value);
+        this.renderer = new DomRenderer(this, value);
       }
     }
 
@@ -369,7 +371,7 @@
 
     DomRenderer.prototype._calculateDimensions = function() {
       var borderWidth;
-      borderWidth = parseInt(getComputedStyle(this.canvas)['border-width']);
+      borderWidth = parseInt(getComputedStyle(this.canvas).getPropertyValue('border-top-width'));
       this.dim = {
         width: this.canvas.offsetWidth + borderWidth,
         height: this.canvas.offsetHeight + borderWidth,
