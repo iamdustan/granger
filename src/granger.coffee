@@ -11,11 +11,12 @@ class Granger
       min: Number @element.getAttribute('min')
       max: Number @element.getAttribute('max')
     }
+    value = @element.value or (@data.max - @data.min) / 2 + @data.min
 
     if @options.renderer is 'canvas'
-      @renderer = new CanvasRenderer @, @element.value
+      @renderer = new CanvasRenderer @, value
 
-    else @renderer = new DomRenderer @, @element.value
+    else @renderer = new DomRenderer @, value
 
   sync: (value) ->
     @element.value = Math.round value

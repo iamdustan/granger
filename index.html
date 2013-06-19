@@ -2,6 +2,7 @@
 <html>
 <head>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta charset="utf-8">
   <style>
   html, body { height: 100%; }
   html { padding: 0 5%; }
@@ -81,22 +82,22 @@
 
   <form action=''>
     <legend>Canvas renderer</legend>
-    <input id="canvas" type="number" min=0 max=100>
+    <input id="canvas" min=0 max=100>
   </form>
 
   <form action=''>
     <legend>DOM renderer</legend>
-    <input id="dom" type="number" min=50 max=100>
+    <input id="dom" min=50 max=100>
   </form>
 
   <form action=''>
     <legend>X Scale Canvas Renderer</legend>
-    <input id="xaxis-canvas" type="number" min=-100 max=100 value=0>
+    <input id="xaxis-canvas" min=-100 max=100 value=0>
   </form>
 
   <form action=''>
     <legend>X Scale DOM Renderer</legend>
-    <input id="xaxis-dom" type="range" min=0 max=255 step=1 value=128>
+    <input id="xaxis-dom" min=0 max=255 step=1 value=128>
   </form>
   <script src="dist/granger.js"></script>
   <script>
