@@ -59,23 +59,89 @@
       this.granger = granger;
       this.options = this.granger.options;
       this._createElements();
+      this._calculateDimensions();
       this._bindEvents();
       start = this.pointByValue(startValue);
-      this.draw(start.x, start.y);
-      this.sync(start.x, start.y);
+      this.update(start.x, start.y);
       this.granger.element.addEventListener('change', function(e) {
         var point;
+        console.log('changed', _this.granger.element.value);
         point = _this.pointByValue(_this.granger.element.value);
         return _this.draw(point.x, point.y);
       }, false);
     }
 
     Renderer.prototype._createElements = function() {
-      return console.log('Error: _createElements not available. Renderer should not be instantiated directly');
+      this.granger.element.style.display = 'none';
+      this.canvas.style.cursor = 'pointer';
+      this.canvas.style.mozUserSelect = 'none';
+      this.canvas.style.webkitUserSelect = 'none';
+      this.granger.element.parentNode.insertBefore(this.canvas, this.element);
+      return this;
+    };
+
+    Renderer.prototype._calculateDimensions = function() {
+      return console.error('Error: _calculateDimensions not available. Renderer should not be instantiated directly');
     };
 
     Renderer.prototype._bindEvents = function() {
-      return console.log('Error: _bindEvents not available. Renderer should not be instantiated directly');
+      var isTap, lastCoords, onCancel, onDrag, onEnd, onStart, startCoords,
+        _this = this;
+      isTap = false;
+      startCoords = void 0;
+      lastCoords = void 0;
+      onStart = function(e) {
+        isTap = true;
+        startCoords = _this._eventCoordinates(e);
+        _this.canvas.addEventListener('mousemove', onDrag, false);
+        _this.canvas.addEventListener('mouseup', onEnd, false);
+        _this.canvas.addEventListener('mousecancel', onCancel, false);
+        _this.canvas.addEventListener('touchmove', onDrag, false);
+        _this.canvas.addEventListener('touchend', onEnd, false);
+        _this.canvas.addEventListener('touchcancel', onCancel, false);
+        document.documentElement.addEventListener('mouseup', onEnd, false);
+        document.documentElement.addEventListener('touchend', onEnd, false);
+        return false;
+      };
+      onDrag = function(e) {
+        var result;
+        if (e.target !== _this.canvas) {
+          return;
+        }
+        lastCoords = _this._eventCoordinates(e);
+        result = _this.getPoint(lastCoords.x, lastCoords.y);
+        if (Math.abs(startCoords.x - lastCoords.x) > 10 || Math.abs(startCoords.y - lastCoords.y) > 10) {
+          isTap = false;
+        }
+        _this.sync(result.x, result.y);
+        _this.draw(result.x, result.y);
+        e.preventDefault();
+        return false;
+      };
+      onEnd = function(e) {
+        var coords, result;
+        if (isTap) {
+          coords = _this._eventCoordinates(e);
+          result = _this.getPoint(coords.x, coords.y);
+          _this.sync(result.x, result.y);
+          _this.draw(result.x, result.y);
+        }
+        onCancel();
+        return false;
+      };
+      onCancel = function(e) {
+        _this.canvas.removeEventListener('mousemove', onDrag);
+        _this.canvas.removeEventListener('mouseup', onEnd);
+        _this.canvas.removeEventListener('mousecancel', onCancel);
+        _this.canvas.removeEventListener('touchmove', onDrag);
+        _this.canvas.removeEventListener('touchend', onEnd);
+        _this.canvas.removeEventListener('touchcancel', onCancel);
+        document.documentElement.removeEventListener('mouseup', onEnd);
+        document.documentElement.removeEventListener('touchend', onEnd);
+        return startCoords = lastCoords = void 0;
+      };
+      this.canvas.addEventListener('mousedown', onStart, false);
+      return this.canvas.addEventListener('touchstart', onStart, false);
     };
 
     Renderer.prototype.sync = function(x, y) {
@@ -85,17 +151,30 @@
       return this;
     };
 
+    Renderer.prototype.update = function(x, y) {
+      this.draw(x, y);
+      this.sync(x, y);
+      return this;
+    };
+
+    Renderer.prototype.limit = function(value) {
+      return Math.max(Math.min(value, this.granger.data.max), this.granger.data.min);
+    };
+
     Renderer.prototype.valueByPoint = function(x, y) {
-      var abs, offset, percentage, radians, value;
-      abs = this.pointByAngle(x, y);
-      offset = -Math.PI / 2;
-      radians = Math.atan2(this.dim.centerY - abs.y, this.dim.centerX - abs.x);
-      if (radians < Math.PI / 2) {
-        radians = Math.PI * 2 + radians;
+      var abs, offset, percentage, radians;
+      if (this.isSingleVector) {
+        percentage = x / (this.dim.radius * 2);
+      } else {
+        abs = this.pointByAngle(x, y);
+        offset = -Math.PI / 2;
+        radians = Math.atan2(this.dim.centerY - abs.y, this.dim.centerX - abs.x);
+        if (radians < Math.PI / 2) {
+          radians = Math.PI * 2 + radians;
+        }
+        percentage = (radians + offset) / (Math.PI * 2);
       }
-      percentage = (radians + offset) / (Math.PI * 2);
-      this.granger.data.min / percentage;
-      return value = percentage * (this.granger.data.max - this.granger.data.min) + this.granger.data.min;
+      return this.limit(percentage * (this.granger.data.max - this.granger.data.min) + this.granger.data.min);
     };
 
     Renderer.prototype.pointByValue = function(value) {
@@ -123,6 +202,12 @@
 
     Renderer.prototype.pointByLimit = function(x, y) {
       var distance, distanceSquared, dx, dy, ratio;
+      if (this.isSingleVector()) {
+        return {
+          x: x,
+          y: y
+        };
+      }
       dx = x - this.dim.centerX;
       dy = y - this.dim.centerY;
       distanceSquared = (dx * dx) + (dy * dy);
@@ -153,119 +238,68 @@
       return /^(x|y)/.test(this.options.type);
     };
 
+    Renderer.prototype._eventOffset = function(e) {
+      var node, x, y;
+      x = y = 0;
+      if (!e.offsetParent) {
+        return {
+          x: x,
+          y: y
+        };
+      }
+      node = this.canvas;
+      while ((node = node.offsetParent)) {
+        x += node.offsetLeft;
+        y += node.offsetTop;
+      }
+      return {
+        x: x,
+        y: y
+      };
+    };
+
+    Renderer.prototype._eventCoordinates = function(e) {
+      var offset, x, y;
+      offset = this._eventOffset(e);
+      if (e.type === 'touchmove') {
+        x = e.touches[0].pageX - offset.x;
+        y = e.touches[0].pageY - offset.y;
+      } else {
+        x = e.layerX - offset.x;
+        y = e.layerY - offset.y;
+      }
+      return {
+        x: x,
+        y: y
+      };
+    };
+
     return Renderer;
 
   })();
-
-  DomRenderer = (function(_super) {
-    __extends(DomRenderer, _super);
-
-    function DomRenderer() {
-      _ref = DomRenderer.__super__.constructor.apply(this, arguments);
-      return _ref;
-    }
-
-    DomRenderer.prototype._createElements = function() {
-      var borderWidth;
-      this.canvas = document.createElement('div');
-      this.pointer = document.createElement('div');
-      this.canvas.setAttribute('class', 'granger');
-      this.pointer.setAttribute('class', 'granger-pointer');
-      this.granger.element.style.display = 'none';
-      this.canvas.style.cursor = 'pointer';
-      this.canvas.style.mozUserSelect = 'none';
-      this.canvas.style.webkitUserSelect = 'none';
-      this.granger.element.parentNode.insertBefore(this.canvas, this.element);
-      this.canvas.appendChild(this.pointer);
-      borderWidth = parseInt(getComputedStyle(this.canvas)['border-width']);
-      this.dim = {
-        width: this.canvas.offsetWidth + borderWidth,
-        height: this.canvas.offsetHeight + borderWidth,
-        offset: this.pointer.offsetWidth
-      };
-      this.dim.centerX = (this.dim.width - borderWidth) / 2;
-      this.dim.centerY = (this.dim.height - borderWidth) / 2;
-      this.dim.radius = this.dim.width / 2 - this.dim.offset;
-      this.draw(this.dim.centerX, this.dim.centerY);
-      return this;
-    };
-
-    DomRenderer.prototype._bindEvents = function() {
-      var onDrag, onEnd, onStart,
-        _this = this;
-      onStart = function(e) {
-        _this.isDragging = true;
-        return false;
-      };
-      onDrag = function(e) {
-        var result, x, y;
-        if (!_this.isDragging) {
-          return;
-        }
-        if (e.type === 'touchmove') {
-          x = e.touches[0].pageX - e.touches[0].target.offsetLeft;
-          y = e.touches[0].pageY - e.touches[0].target.offsetTop;
-        } else {
-          x = e.offsetX;
-          y = e.offsetY;
-        }
-        result = _this.getPoint(x, y);
-        _this.sync(result.x, result.y);
-        _this.draw(result.x, result.y);
-        e.preventDefault();
-        return false;
-      };
-      onEnd = function(e) {
-        _this.isDragging = false;
-        return false;
-      };
-      this.canvas.addEventListener('mousedown', onStart, false);
-      this.canvas.addEventListener('mousemove', onDrag, false);
-      this.canvas.addEventListener('mouseup', onEnd, false);
-      this.pointer.addEventListener('mousedown', onStart, false);
-      this.pointer.addEventListener('mousemove', onDrag, false);
-      this.pointer.addEventListener('mouseup', onEnd, false);
-      this.canvas.addEventListener('touchstart', onStart, false);
-      this.canvas.addEventListener('touchmove', onDrag, false);
-      return this.canvas.addEventListener('touchend', onEnd, false);
-    };
-
-    DomRenderer.prototype.draw = function(x, y) {
-      this.pointer.style.left = x + 'px';
-      if (this.isSingleVector()) {
-        y = 0;
-      } else {
-        y = y - this.dim.offset;
-      }
-      return this.pointer.style.top = y + 'px';
-    };
-
-    return DomRenderer;
-
-  })(Renderer);
 
   CanvasRenderer = (function(_super) {
     __extends(CanvasRenderer, _super);
 
     function CanvasRenderer() {
-      _ref1 = CanvasRenderer.__super__.constructor.apply(this, arguments);
-      return _ref1;
+      _ref = CanvasRenderer.__super__.constructor.apply(this, arguments);
+      return _ref;
     }
 
     CanvasRenderer.prototype._createElements = function() {
-      var fontSize;
       this.canvas = document.createElement('canvas');
       this.canvas.setAttribute('class', 'granger');
       this.ctx = this.canvas.getContext('2d');
-      fontSize = parseInt(getComputedStyle(this.granger.element).getPropertyValue('font-size'), 10);
-      console.log(this.options.width, this.options.height);
-      this.canvas.width = this.options.width || 15 * fontSize;
-      this.canvas.height = this.options.height || 15 * fontSize;
-      this.granger.element.style.display = 'none';
-      this.canvas.style.cursor = 'pointer';
-      this.canvas.style.mozUserSelect = 'none';
-      this.canvas.style.webkitUserSelect = 'none';
-      this.granger.element.parentNode.insertBefore(this.canvas, this.element);
+      if (this.options.height) {
+        this.canvas.height = this.options.height;
+      }
+      if (this.options.width) {
+        this.canvas.width = this.options.width;
+      }
+      return CanvasRenderer.__super__._createElements.call(this);
+    };
+
+    CanvasRenderer.prototype._calculateDimensions = function() {
       this.dim = {
         width: this.canvas.width,
         height: this.canvas.height,
@@ -277,43 +311,6 @@
       this.dim.radius = this.dim.width / 2 - 6;
       this.draw(this.dim.centerX, this.dim.centerY);
       return this;
-    };
-
-    CanvasRenderer.prototype._bindEvents = function() {
-      var onDrag, onEnd, onStart,
-        _this = this;
-      onStart = function(e) {
-        _this.isDragging = true;
-        return false;
-      };
-      onDrag = function(e) {
-        var result, x, y;
-        if (!_this.isDragging) {
-          return;
-        }
-        if (e.type === 'touchmove') {
-          x = e.touches[0].pageX - e.touches[0].target.offsetLeft;
-          y = e.touches[0].pageY - e.touches[0].target.offsetTop;
-        } else {
-          x = e.offsetX;
-          y = e.offsetY;
-        }
-        result = _this.getPoint(x, y);
-        _this.sync(result.x, result.y);
-        _this.draw(result.x, result.y);
-        e.preventDefault();
-        return false;
-      };
-      onEnd = function(e) {
-        _this.isDragging = false;
-        return false;
-      };
-      this.canvas.addEventListener('mousedown', onStart, false);
-      this.canvas.addEventListener('mousemove', onDrag, false);
-      this.canvas.addEventListener('mouseup', onEnd, false);
-      this.canvas.addEventListener('touchstart', onStart, false);
-      this.canvas.addEventListener('touchmove', onDrag, false);
-      return this.canvas.addEventListener('touchend', onEnd, false);
     };
 
     CanvasRenderer.prototype.draw = function(x, y) {
@@ -344,6 +341,58 @@
     };
 
     return CanvasRenderer;
+
+  })(Renderer);
+
+  DomRenderer = (function(_super) {
+    __extends(DomRenderer, _super);
+
+    function DomRenderer() {
+      _ref1 = DomRenderer.__super__.constructor.apply(this, arguments);
+      return _ref1;
+    }
+
+    DomRenderer.prototype._createElements = function() {
+      this.canvas = document.createElement('div');
+      this.pointer = document.createElement('div');
+      this.canvas.appendChild(this.pointer);
+      this.canvas.setAttribute('class', 'granger');
+      this.pointer.setAttribute('class', 'granger-pointer');
+      if (this.options.height) {
+        this.canvas.style.height = this.options.height;
+      }
+      if (this.options.width) {
+        this.canvas.style.width = this.options.width;
+      }
+      return DomRenderer.__super__._createElements.call(this);
+    };
+
+    DomRenderer.prototype._calculateDimensions = function() {
+      var borderWidth;
+      borderWidth = parseInt(getComputedStyle(this.canvas)['border-width']);
+      this.dim = {
+        width: this.canvas.offsetWidth + borderWidth,
+        height: this.canvas.offsetHeight + borderWidth,
+        offset: this.pointer.offsetWidth
+      };
+      this.dim.centerX = (this.dim.width - borderWidth) / 2;
+      this.dim.centerY = (this.dim.height - borderWidth) / 2;
+      this.dim.radius = this.dim.width / 2 - this.dim.offset;
+      this.draw(this.dim.centerX, this.dim.centerY);
+      return this;
+    };
+
+    DomRenderer.prototype.draw = function(x, y) {
+      this.pointer.style.left = x + 'px';
+      if (this.isSingleVector()) {
+        y = 0;
+      } else {
+        y = y - this.dim.offset;
+      }
+      return this.pointer.style.top = y + 'px';
+    };
+
+    return DomRenderer;
 
   })(Renderer);
 
