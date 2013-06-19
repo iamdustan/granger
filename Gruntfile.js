@@ -19,18 +19,23 @@ module.exports = function(grunt) {
       },
       compile: {
         files: {
-          'build/granger.js': ['src/**/*.coffee']
+          'dist/granger.js': ['src/**/*.coffee']
         }
       }
     },
     karma: {
       unit: {
-        configFile: 'karma.conf.js'
-        //, background: true
+        configFile: 'karma.conf.js',
+        background: true
+      },
+      test: {
+        configFile: 'karma.conf.js',
+        background: false
       }
     }
   })
 
-  grunt.registerTask('develop', ['karma:unit', 'watch'])
+  grunt.registerTask('test', ['karma:test'])
+  grunt.registerTask('develop', ['karma:unit', 'watch:coffee'])
 }
 

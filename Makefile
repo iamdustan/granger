@@ -3,7 +3,7 @@ setup:
 	@npm install
 
 watch:
-	@grunt develop
+	@grunt karma:unit watch
 
 test:
 	@grunt karma
