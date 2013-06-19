@@ -1,7 +1,7 @@
 element = document.createElement 'input'
 document.documentElement.appendChild element
 
-describe 'Granger Core', () ->
+describe 'Renderer Core', () ->
   beforeEach ()->
     @granger = new Granger(element)
     @renderer = @granger.renderer
@@ -19,13 +19,39 @@ describe 'Granger Core', () ->
 
   it 'should have the appropriate methods', () ->
     expect(@renderer._createElements).toBeDefined()
+    expect(@renderer._calculateDimensions).toBeDefined()
     expect(@renderer._bindEvents).toBeDefined()
+    expect(@renderer._eventOffset).toBeDefined()
+    expect(@renderer._eventCoordinates).toBeDefined()
+    expect(@renderer.draw).toBeDefined()
     expect(@renderer.sync).toBeDefined()
+    expect(@renderer.update).toBeDefined()
     expect(@renderer.valueByPoint).toBeDefined()
     expect(@renderer.pointByValue).toBeDefined()
     expect(@renderer.pointByAngle).toBeDefined()
     expect(@renderer.pointByLimit).toBeDefined()
     expect(@renderer.getPoint).toBeDefined()
+
+describe 'Methods', () ->
+  beforeEach ()->
+    @granger = new Granger(element)
+    @renderer = @granger.renderer
+
+  describe 'constructor', () ->
+    it 'should initialize the granger', () ->
+      @granger = new Granger(element)
+      expect(@granger.renderer).toBeDefined()
+
+  xdescribe '_bindEvents', () ->
+
+  describe 'valueByPoint', () ->
+  describe 'pointByValue', () ->
+  describe 'pointByAngle', () ->
+  describe 'pointByLimit', () ->
+  describe 'getPoint', () ->
+
+
+
 
 
 
