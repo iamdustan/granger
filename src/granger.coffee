@@ -3,7 +3,7 @@
 # @prop {Boolean} [options.freeBounds] if true, will draw target anywhere within the bounds
 # @prop {String} [options.type] if dial, point, vector
 class Granger
-  @version: '0.1.0'
+  @version: '0.1.1'
 
   constructor: (@element, @options = {}) ->
     @element = document.getElementById(@element) if typeof @element == 'string'
