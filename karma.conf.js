@@ -1,10 +1,10 @@
-autoWatch = true;
+autoWatch = false;
 
 basePath = '';
 
 frameworks = ['jasmine'];
 
-browsers = ['Safari']//, 'PhantomJS'];
+browsers = ['Safari', 'Firefox']//, 'PhantomJS'];
   /*
     Chrome
     ChromeCanary
@@ -22,7 +22,7 @@ files = [
   JASMINE,
   JASMINE_ADAPTER,
   //'src/**/*.coffee',
-  'build/*.js',
+  'dist/*.js',
   'tests/*.coffee'
 ];
 
@@ -37,9 +37,9 @@ port = 9876;
 preprocessers = { '**/*.coffee': 'coffee' };
 
 //proxies = {},
-reportSlowerThan = 50;
+//reportSlowerThan = 200;
 
-reporters = ['progress']; /* dots progress junit growl coverage */
+reporters = ['dots']; /* dots progress junit growl coverage */
 
 runnerPort = 9100;
 singleRun = false;
