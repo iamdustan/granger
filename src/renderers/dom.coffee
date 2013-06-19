@@ -12,7 +12,7 @@ class DomRenderer extends Renderer
     super()
 
   _calculateDimensions: () ->
-    borderWidth = parseInt(getComputedStyle(@canvas)['border-width'])
+    borderWidth = parseInt(getComputedStyle(@canvas).getPropertyValue('border-top-width'))
     @dim =
       width: @canvas.offsetWidth + borderWidth
       height: @canvas.offsetHeight + borderWidth
