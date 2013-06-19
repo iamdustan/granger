@@ -2,20 +2,82 @@ class Renderer
   constructor: (@granger, startValue) ->
     @options = @granger.options
     @_createElements()
+    @_calculateDimensions()
     @_bindEvents()
     start = @pointByValue(startValue)
-    @draw(start.x, start.y)
-    @sync(start.x, start.y)
+    @update start.x, start.y
     @granger.element.addEventListener('change', (e) =>
+      console.log('changed', @granger.element.value)
       point = @pointByValue(@granger.element.value)
       @draw point.x, point.y
     , false)
 
   _createElements: () ->
-    console.log('Error: _createElements not available. Renderer should not be instantiated directly')
+    @granger.element.style.display = 'none'
+    @canvas.style.cursor = 'pointer'
+    @canvas.style.mozUserSelect = 'none'
+    @canvas.style.webkitUserSelect = 'none'
+
+    @granger.element.parentNode.insertBefore @canvas, @element
+    @
+
+  _calculateDimensions: () ->
+    console.error('Error: _calculateDimensions not available. Renderer should not be instantiated directly')
 
   _bindEvents: () ->
-    console.log('Error: _bindEvents not available. Renderer should not be instantiated directly')
+    isTap = false
+    startCoords = undefined
+    lastCoords = undefined
+
+    onStart = (e) =>
+      isTap = true
+      startCoords = @_eventCoordinates(e)
+      @canvas.addEventListener 'mousemove', onDrag, false
+      @canvas.addEventListener 'mouseup', onEnd, false
+      @canvas.addEventListener 'mousecancel', onCancel, false
+      @canvas.addEventListener 'touchmove', onDrag, false
+      @canvas.addEventListener 'touchend', onEnd, false
+      @canvas.addEventListener 'touchcancel', onCancel, false
+      document.documentElement.addEventListener 'mouseup', onEnd, false
+      document.documentElement.addEventListener 'touchend', onEnd, false
+      return false
+
+    onDrag = (e) =>
+      # TODO: handle this state better. perhaps by using pageX to element offsetX
+      return if e.target != @canvas
+      lastCoords = @_eventCoordinates(e)
+      result = @getPoint lastCoords.x, lastCoords.y
+      if Math.abs(startCoords.x - lastCoords.x) > 10 or Math.abs(startCoords.y - lastCoords.y) > 10
+        isTap = false
+
+      @sync result.x, result.y
+      @draw result.x, result.y
+      e.preventDefault()
+      return false
+
+    onEnd = (e) =>
+      if isTap
+        coords = @_eventCoordinates(e)
+        result = @getPoint coords.x, coords.y
+        @sync result.x, result.y
+        @draw result.x, result.y
+
+      onCancel()
+      return false
+
+    onCancel = (e) =>
+      @canvas.removeEventListener 'mousemove', onDrag
+      @canvas.removeEventListener 'mouseup', onEnd
+      @canvas.removeEventListener 'mousecancel', onCancel
+      @canvas.removeEventListener 'touchmove', onDrag
+      @canvas.removeEventListener 'touchend', onEnd
+      @canvas.removeEventListener 'touchcancel', onCancel
+      document.documentElement.removeEventListener 'mouseup', onEnd
+      document.documentElement.removeEventListener 'touchend', onEnd
+      startCoords = lastCoords = undefined
+
+    @canvas.addEventListener 'mousedown', onStart, false
+    @canvas.addEventListener 'touchstart', onStart, false
 
   sync: (x, y) ->
     # + 1/2 Math.PI === @data.min
@@ -23,17 +85,28 @@ class Renderer
     @granger.sync value
     @
 
+  update: (x, y) ->
+    @draw x, y
+    @sync x, y
+    @
+
+  limit: (value) ->
+    Math.max(Math.min(value, @granger.data.max), @granger.data.min)
+
   valueByPoint: (x, y) ->
-    abs = @pointByAngle x, y
-    offset = - Math.PI / 2
-    radians = Math.atan2(@dim.centerY - abs.y, @dim.centerX - abs.x)
-    if radians < Math.PI / 2
-      radians = Math.PI * 2 + radians
+    if @isSingleVector
+      percentage = x / (@dim.radius * 2)
+    else
+      abs = @pointByAngle x, y
+      offset = - Math.PI / 2
+      radians = Math.atan2(@dim.centerY - abs.y, @dim.centerX - abs.x)
+      if radians < Math.PI / 2
+        radians = Math.PI * 2 + radians
 
-    percentage = (radians + offset) / (Math.PI * 2)
-    (@granger.data.min / percentage)
+      percentage = (radians + offset) / (Math.PI * 2)
+      #(@granger.data.min / percentage)
 
-    value = percentage * (@granger.data.max - @granger.data.min) + @granger.data.min
+    return @limit(percentage * (@granger.data.max - @granger.data.min) + @granger.data.min)
 
   pointByValue: (value) ->
     percentage = (value - @granger.data.min) / (@granger.data.max - @granger.data.min)
@@ -49,11 +122,15 @@ class Renderer
     return { x, y }
 
   pointByLimit: (x, y) ->
+    if @isSingleVector()
+      return { x, y }
+
     dx = x - @dim.centerX
     dy = y - @dim.centerY
     distanceSquared = (dx * dx) + (dy * dy)
 
-    return { x, y } if distanceSquared <= @dim.radius * @dim.radius
+    if distanceSquared <= @dim.radius * @dim.radius
+      return { x, y }
 
     distance = Math.sqrt(distanceSquared)
     ratio = @dim.radius / distance
@@ -68,168 +145,27 @@ class Renderer
   isSingleVector: () ->
     /^(x|y)/.test @options.type
 
+  _eventOffset: (e) ->
+    x = y = 0
+    return { x, y } unless e.offsetParent
 
-class DomRenderer extends Renderer
-  _createElements: () ->
-    @canvas = document.createElement 'div'
-    @pointer = document.createElement 'div'
-    @canvas.setAttribute 'class', 'granger'
-    @pointer.setAttribute 'class', 'granger-pointer'
-    @granger.element.style.display = 'none'
-    @canvas.style.cursor = 'pointer'
-    @canvas.style.mozUserSelect = 'none'
-    @canvas.style.webkitUserSelect = 'none'
+    node = @canvas
+    while (node = node.offsetParent)
+      x += node.offsetLeft
+      y += node.offsetTop
 
-    @granger.element.parentNode.insertBefore @canvas, @element
-    @canvas.appendChild @pointer
-    borderWidth = parseInt(getComputedStyle(@canvas)['border-width'])
-    @dim =
-      width: @canvas.offsetWidth + borderWidth
-      height: @canvas.offsetHeight + borderWidth
-      offset: @pointer.offsetWidth
+    return { x, y }
 
-    @dim.centerX = (@dim.width - borderWidth) / 2
-    @dim.centerY = (@dim.height - borderWidth) / 2
-    @dim.radius = @dim.width / 2 - @dim.offset
-
-    @draw(@dim.centerX, @dim.centerY)
-    @
-
-  _bindEvents: () ->
-    onStart = (e) =>
-      @isDragging = true
-      return false
-
-    onDrag = (e) =>
-      return unless @isDragging
-      if e.type is 'touchmove'
-        x = e.touches[0].pageX - e.touches[0].target.offsetLeft
-        y = e.touches[0].pageY - e.touches[0].target.offsetTop
-      else
-        x = e.offsetX
-        y = e.offsetY
-
-      result = @getPoint x, y
-      @sync result.x, result.y
-      @draw result.x, result.y
-      e.preventDefault()
-      return false
-
-    onEnd = (e) =>
-      @isDragging = false
-      return false
-
-    @canvas.addEventListener 'mousedown', onStart, false
-    @canvas.addEventListener 'mousemove', onDrag, false
-    @canvas.addEventListener 'mouseup', onEnd, false
-    @pointer.addEventListener 'mousedown', onStart, false
-    @pointer.addEventListener 'mousemove', onDrag, false
-    @pointer.addEventListener 'mouseup', onEnd, false
-    @canvas.addEventListener 'touchstart', onStart, false
-    @canvas.addEventListener 'touchmove', onDrag, false
-    @canvas.addEventListener 'touchend', onEnd, false
-
-  draw: (x, y) ->
-    @pointer.style.left = x + 'px'
-    if @isSingleVector()
-      y = 0
+  _eventCoordinates: (e) ->
+    offset = @_eventOffset(e)
+    if e.type is 'touchmove'
+      x = e.touches[0].pageX - offset.x
+      y = e.touches[0].pageY - offset.y
     else
-      y = y - @dim.offset
-    @pointer.style.top = y + 'px'
+      x = e.layerX - offset.x
+      y = e.layerY - offset.y
+    { x, y }
 
 
 
-class CanvasRenderer extends Renderer
-  _createElements: () ->
-    @canvas = document.createElement 'canvas'
-    @canvas.setAttribute 'class', 'granger'
-    @ctx = @canvas.getContext '2d'
-    fontSize = parseInt(getComputedStyle(@granger.element).getPropertyValue('font-size'), 10)
-    @canvas.width = @options.width or 15 * fontSize
-    @canvas.height = @options.height or 15 * fontSize
-
-    @granger.element.style.display = 'none'
-    @canvas.style.cursor = 'pointer'
-    @canvas.style.mozUserSelect = 'none'
-    @canvas.style.webkitUserSelect = 'none'
-
-    @granger.element.parentNode.insertBefore @canvas, @element
-    @dim =
-      width: @canvas.width
-      height: @canvas.height,
-      top: @canvas.offsetTop,
-      left: @canvas.offsetLeft
-
-    @dim.centerX = @dim.width / 2
-    @dim.centerY = @dim.height / 2
-    # 6 is the line Width / 2
-    @dim.radius = @dim.width / 2 - 6
-
-
-    @draw(@dim.centerX, @dim.centerY)
-    @
-
-  _bindEvents: () ->
-    onStart = (e) =>
-      @isDragging = true
-      return false
-    onDrag = (e) =>
-
-      return unless @isDragging
-      if e.type is 'touchmove'
-        x = e.touches[0].pageX - e.touches[0].target.offsetLeft
-        y = e.touches[0].pageY - e.touches[0].target.offsetTop
-      else
-        x = e.offsetX
-        y = e.offsetY
-
-      result = @getPoint x, y
-      @sync result.x, result.y
-      @draw result.x, result.y
-      e.preventDefault()
-      return false
-
-    onEnd = (e) =>
-      @isDragging = false
-      return false
-
-    @canvas.addEventListener 'mousedown', onStart, false
-    @canvas.addEventListener 'mousemove', onDrag, false
-    @canvas.addEventListener 'mouseup', onEnd, false
-    @canvas.addEventListener 'touchstart', onStart, false
-    @canvas.addEventListener 'touchmove', onDrag, false
-    @canvas.addEventListener 'touchend', onEnd, false
-
-  draw: (x, y) ->
-    # reset canvas
-    @canvas.width = @canvas.width
-
-    @ctx.strokeStyle = '#cccccc'
-    @ctx.lineWidth = 12
-
-    if @isSingleVector()
-      @ctx.lineCap = 'round'
-
-      @ctx.beginPath()
-      @ctx.moveTo @dim.centerX - @dim.radius, @ctx.lineWidth / 2
-      @ctx.lineTo @dim.centerX + @dim.radius, @ctx.lineWidth / 2
-      @ctx.stroke()
-
-      @ctx.strokeStyle = '#000000'
-      @ctx.lineWidth = 12
-
-      @ctx.beginPath()
-      @ctx.arc x, @ctx.lineWidth / 2, @ctx.lineWidth / 2, 0, Math.PI*2, true
-      @ctx.fill()
-    else
-      @ctx.beginPath()
-      @ctx.arc @dim.centerX, @dim.centerY, @dim.radius, 0, Math.PI*2, true
-      @ctx.stroke()
-
-      @ctx.strokeStyle = '#000000'
-      @ctx.lineWidth = 12
-
-      @ctx.beginPath()
-      @ctx.arc x, y, @ctx.lineWidth / 2, 0, Math.PI*2, true
-      @ctx.fill()
 

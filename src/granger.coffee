@@ -1,12 +1,12 @@
 
 # @param {Object} options options object
 # @prop {Boolean} [options.freeBounds] if true, will draw target anywhere within the bounds
+# @prop {String} [options.type] if dial, point, vector
 class Granger
   @version: '0.1.0'
 
   constructor: (@element, @options = {}) ->
-    if typeof @element == 'string'
-        @element = document.getElementById(@element)
+    @element = document.getElementById(@element) if typeof @element == 'string'
     @data = {
       min: Number @element.getAttribute('min')
       max: Number @element.getAttribute('max')
