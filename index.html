@@ -90,17 +90,17 @@
   </form>
 
   <form action=''>
-    <legend>X Scale renderer</legend>
-    <input id="xaxis-canvas" type="number" min=0 max=100>
+    <legend>X Scale Canvas Renderer</legend>
+    <input id="xaxis-canvas" type="number" min=-100 max=100 value=0>
   </form>
 
   <form action=''>
-    <legend>X Scale renderer</legend>
-    <input id="xaxis-dom" type="number" min=0 max=100>
+    <legend>X Scale DOM Renderer</legend>
+    <input id="xaxis-dom" type="range" min=0 max=255 step=1 value=128>
   </form>
-  <script src="build/granger.js"></script>
+  <script src="dist/granger.js"></script>
   <script>
-    canvas = new Granger(document.getElementById('canvas'), { renderer: 'canvas', freeBounds: true })
+    canvas = new Granger(document.getElementById('canvas'), { renderer: 'canvas', freeBounds: true, width: 300, height: 300 })
     dom = new Granger(document.getElementById('dom'), { renderer: 'dom' })
     xaxisCanvas = new Granger(document.getElementById('xaxis-canvas'), { renderer: 'canvas', type: 'x', height: 64 })
     xaxisDom = new Granger(document.getElementById('xaxis-dom'), { renderer: 'dom', type: 'x', height: 64 })
