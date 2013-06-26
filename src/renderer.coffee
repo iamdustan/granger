@@ -18,7 +18,7 @@ class Renderer
     @canvas.style.mozUserSelect = 'none'
     @canvas.style.webkitUserSelect = 'none'
 
-    @granger.element.parentNode.insertBefore @canvas, @element
+    @granger.element.parentNode.insertBefore @canvas, @granger.element
     @
 
   _calculateDimensions: () ->

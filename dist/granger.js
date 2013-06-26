@@ -78,7 +78,7 @@
       this.canvas.style.cursor = 'pointer';
       this.canvas.style.mozUserSelect = 'none';
       this.canvas.style.webkitUserSelect = 'none';
-      this.granger.element.parentNode.insertBefore(this.canvas, this.element);
+      this.granger.element.parentNode.insertBefore(this.canvas, this.granger.element);
       return this;
     };
 
