@@ -110,9 +110,13 @@ class Renderer
 
   pointByValue: (value) ->
     percentage = (value - @granger.data.min) / (@granger.data.max - @granger.data.min)
-    radians = (percentage * 2 + 0.5) * Math.PI
-    x = -1 * @dim.radius * Math.cos(radians) + @dim.centerX
-    y = -1 * @dim.radius * Math.sin(radians) + @dim.centerY
+    if @isSingleVector
+      x = @dim.width * percentage
+      y = 0
+    else
+      radians = (percentage * 2 + 0.5) * Math.PI
+      x = -1 * @dim.radius * Math.cos(radians) + @dim.centerX
+      y = -1 * @dim.radius * Math.sin(radians) + @dim.centerY
     return { x, y }
 
   pointByAngle: (x, y) ->
