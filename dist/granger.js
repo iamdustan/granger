@@ -5,7 +5,7 @@
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   Granger = (function() {
-    Granger.version = '0.1.1';
+    Granger.version = '0.1.3';
 
     function Granger(element, options) {
       var value;
@@ -67,7 +67,6 @@
       this.update(start.x, start.y);
       this.granger.element.addEventListener('change', function(e) {
         var point;
-        console.log('changed', _this.granger.element.value);
         point = _this.pointByValue(_this.granger.element.value);
         return _this.draw(point.x, point.y);
       }, false);
@@ -182,9 +181,14 @@
     Renderer.prototype.pointByValue = function(value) {
       var percentage, radians, x, y;
       percentage = (value - this.granger.data.min) / (this.granger.data.max - this.granger.data.min);
-      radians = (percentage * 2 + 0.5) * Math.PI;
-      x = -1 * this.dim.radius * Math.cos(radians) + this.dim.centerX;
-      y = -1 * this.dim.radius * Math.sin(radians) + this.dim.centerY;
+      if (this.isSingleVector) {
+        x = percentage * this.dim.width + this.dim.offset / 2;
+        y = 0;
+      } else {
+        radians = (percentage * 2 + 0.5) * Math.PI;
+        x = -1 * this.dim.radius * Math.cos(radians) + this.dim.centerX;
+        y = -1 * this.dim.radius * Math.sin(radians) + this.dim.centerY;
+      }
       return {
         x: x,
         y: y
