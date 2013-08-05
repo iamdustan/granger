@@ -37,5 +37,6 @@ module.exports = function(grunt) {
 
   grunt.registerTask('test', ['karma:test'])
   grunt.registerTask('develop', ['karma:unit', 'watch:coffee'])
+  grunt.registerTask('build', 'coffee:compile')
 }
 
