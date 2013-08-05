@@ -7,7 +7,6 @@ class Renderer
     start = @pointByValue(startValue)
     @update start.x, start.y
     @granger.element.addEventListener('change', (e) =>
-      console.log('changed', @granger.element.value)
       point = @pointByValue(@granger.element.value)
       @draw point.x, point.y
     , false)
