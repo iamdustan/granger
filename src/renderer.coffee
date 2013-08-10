@@ -27,6 +27,8 @@ class Renderer
     isTap = false
     startCoords = undefined
     lastCoords = undefined
+    onResize = (e) =>
+      @_calculateDimensions
 
     onStart = (e) =>
       isTap = true
@@ -77,6 +79,8 @@ class Renderer
 
     @canvas.addEventListener 'mousedown', onStart, false
     @canvas.addEventListener 'touchstart', onStart, false
+    window.addEventListener 'resize', onResize, false
+
 
   sync: (x, y) ->
     # + 1/2 Math.PI === @data.min
