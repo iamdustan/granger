@@ -14,8 +14,10 @@ class Renderer
   _createElements: () ->
     @granger.element.style.display = 'none'
     @canvas.style.cursor = 'pointer'
-    @canvas.style.mozUserSelect = 'none'
-    @canvas.style.webkitUserSelect = 'none'
+    @canvas.style.mozUserSelect =
+    @canvas.style.webkitUserSelect =
+    @canvas.style.userSelect = 'none'
+    @canvas.setAttribute 'data-granger', @granger.element.id
 
     @granger.element.parentNode.insertBefore @canvas, @granger.element
     @

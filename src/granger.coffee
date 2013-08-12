@@ -7,20 +7,18 @@ class Granger
 
   constructor: (@element, @options = {}) ->
     @element = document.getElementById(@element) if typeof @element == 'string'
-    @data = {
+    @data =
       min: Number @element.getAttribute('min')
       max: Number @element.getAttribute('max')
-    }
     value = @element.value or (@data.max - @data.min) / 2 + @data.min
 
     if @options.renderer is 'canvas'
       @renderer = new CanvasRenderer @, value
-
     else @renderer = new DomRenderer @, value
 
   sync: (value) ->
     @element.value = Math.round value
-    fireEvent(@element, 'change')
+    fireEvent @element, 'change'
     @
 
 fireEvent = (() ->
