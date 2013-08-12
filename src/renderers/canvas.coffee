@@ -10,18 +10,16 @@ class CanvasRenderer extends Renderer
     super()
 
   _calculateDimensions: () ->
-    @dim =
-      width: @canvas.width
-      height: @canvas.height,
-      top: @canvas.offsetTop,
-      left: @canvas.offsetLeft
-
+    # left/top offset
+    @dim = @_offset()
+    @dim.width = @canvas.width
+    @dim.height = @canvas.height
     @dim.centerX = @dim.width / 2
     @dim.centerY = @dim.height / 2
     # 6 is the line Width / 2
     @dim.radius = @dim.width / 2 - 6
 
-    @draw(@dim.centerX, @dim.centerY)
+    @draw @dim.centerX, @dim.centerY
     @
 
   draw: (x, y) ->

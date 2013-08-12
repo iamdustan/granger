@@ -13,16 +13,16 @@ class DomRenderer extends Renderer
 
   _calculateDimensions: () ->
     borderWidth = parseInt(getComputedStyle(@canvas).getPropertyValue('border-top-width'))
-    @dim =
-      width: @canvas.offsetWidth + borderWidth
-      height: @canvas.offsetHeight + borderWidth
-      offset: @pointer.offsetWidth
-
+    # left/top offset
+    @dim = @_offset()
+    @dim.width = @canvas.offsetWidth + borderWidth
+    @dim.height = @canvas.offsetHeight + borderWidth
+    @dim.offset = @pointer.offsetWidth
     @dim.centerX = (@dim.width - borderWidth) / 2
     @dim.centerY = (@dim.height - borderWidth) / 2
     @dim.radius = @dim.width / 2 - @dim.offset
 
-    @draw(@dim.centerX, @dim.centerY)
+    @draw @dim.centerX, @dim.centerY
     @
 
   draw: (x, y) ->

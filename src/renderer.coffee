@@ -25,27 +25,24 @@ class Renderer
 
   _bindEvents: () ->
     isTap = false
-    startCoords = undefined
-    lastCoords = undefined
+    startCoords = lastCoords = undefined
     onResize = (e) =>
-      @_calculateDimensions
+      @_calculateDimensions()
 
     onStart = (e) =>
       isTap = true
+      @_calculateDimensions()
+      @_toggleSelectable 'none'
       startCoords = @_eventCoordinates(e)
-      @canvas.addEventListener 'mousemove', onDrag, false
-      @canvas.addEventListener 'mouseup', onEnd, false
-      @canvas.addEventListener 'mousecancel', onCancel, false
-      @canvas.addEventListener 'touchmove', onDrag, false
-      @canvas.addEventListener 'touchend', onEnd, false
-      @canvas.addEventListener 'touchcancel', onCancel, false
+      document.documentElement.addEventListener 'mousemove', onDrag, false
       document.documentElement.addEventListener 'mouseup', onEnd, false
+      document.documentElement.addEventListener 'mousecancel', onCancel, false
+      document.documentElement.addEventListener 'touchmove', onDrag, false
       document.documentElement.addEventListener 'touchend', onEnd, false
+      document.documentElement.addEventListener 'touchcancel', onCancel, false
       return false
 
     onDrag = (e) =>
-      # TODO: handle this state better. perhaps by using pageX to element offsetX
-      return if e.target != @canvas
       lastCoords = @_eventCoordinates(e)
       result = @getPoint lastCoords.x, lastCoords.y
       if Math.abs(startCoords.x - lastCoords.x) > 10 or Math.abs(startCoords.y - lastCoords.y) > 10
@@ -67,14 +64,13 @@ class Renderer
       return false
 
     onCancel = (e) =>
-      @canvas.removeEventListener 'mousemove', onDrag
-      @canvas.removeEventListener 'mouseup', onEnd
-      @canvas.removeEventListener 'mousecancel', onCancel
-      @canvas.removeEventListener 'touchmove', onDrag
-      @canvas.removeEventListener 'touchend', onEnd
-      @canvas.removeEventListener 'touchcancel', onCancel
+      @_toggleSelectable ''
+      document.documentElement.removeEventListener 'mousemove', onDrag
       document.documentElement.removeEventListener 'mouseup', onEnd
+      document.documentElement.removeEventListener 'mousecancel', onCancel
+      document.documentElement.removeEventListener 'touchmove', onDrag
       document.documentElement.removeEventListener 'touchend', onEnd
+      document.documentElement.removeEventListener 'touchcancel', onCancel
       startCoords = lastCoords = undefined
 
     @canvas.addEventListener 'mousedown', onStart, false
@@ -153,26 +149,33 @@ class Renderer
   isSingleVector: () ->
     /^(x|y)/.test @options.type
 
-  _eventOffset: (e) ->
-    x = y = 0
-    return { x, y } unless e.offsetParent
-
+  _offset: () ->
     node = @canvas
-    while (node = node.offsetParent)
-      x += node.offsetLeft
-      y += node.offsetTop
+    left = node.offsetLeft
+    top = node.offsetTop
 
-    return { x, y }
+    while (node = node.offsetParent)
+      left += node.offsetLeft
+      top += node.offsetTop
+
+    { left, top }
 
   _eventCoordinates: (e) ->
-    offset = @_eventOffset(e)
     if e.type is 'touchmove'
-      x = e.touches[0].pageX - offset.x
-      y = e.touches[0].pageY - offset.y
+      x = e.touches[0].pageX - @dim.left
+      y = e.touches[0].pageY - @dim.top
     else
-      x = e.layerX - offset.x
-      y = e.layerY - offset.y
+      x = e.layerX - @dim.left
+      y = e.layerY - @dim.top
     { x, y }
+
+  _toggleSelectable: (what)->
+    document.body.style['-webkit-user-select'] =
+    document.body.style['-moz-user-select'] =
+    document.body.style['-ms-user-select'] =
+    document.body.style['user-select'] =
+    what or ''
+
 
 
 
