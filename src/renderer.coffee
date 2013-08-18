@@ -167,8 +167,8 @@ class Renderer
       x = e.touches[0].pageX - @dim.left
       y = e.touches[0].pageY - @dim.top
     else
-      x = e.layerX - @dim.left
-      y = e.layerY - @dim.top
+      x = e.pageX - @dim.left
+      y = e.pageY - @dim.top
     { x, y }
 
   _toggleSelectable: (what)->

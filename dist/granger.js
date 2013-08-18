@@ -264,8 +264,8 @@
         x = e.touches[0].pageX - this.dim.left;
         y = e.touches[0].pageY - this.dim.top;
       } else {
-        x = e.layerX - this.dim.left;
-        y = e.layerY - this.dim.top;
+        x = e.pageX - this.dim.left;
+        y = e.pageY - this.dim.top;
       }
       return {
         x: x,
