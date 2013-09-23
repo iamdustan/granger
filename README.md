@@ -3,7 +3,7 @@
 A modern, lightweight range UI component with an aim towards integration
 simplicity and accessibility across all input methods.
 
-Note: This is alpha software and is subject to change.
+Note: This is pre-alpha software and is subject to change.
 
 [View demo](http://iamdustan.github.com/granger)
 
