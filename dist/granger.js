@@ -5,7 +5,7 @@
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   Granger = (function() {
-    Granger.version = '0.1.3';
+    Granger.version = '0.1.5';
 
     function Granger(element, options) {
       var value;
@@ -114,7 +114,6 @@
           isTap = false;
         }
         _this.sync(result.x, result.y);
-        _this.draw(result.x, result.y);
         e.preventDefault();
         return false;
       };
@@ -193,7 +192,7 @@
       var percentage, radians, x, y;
       percentage = this.limit((value - this.granger.data.min) / (this.granger.data.max - this.granger.data.min), 0, 1);
       if (this.isSingleVector()) {
-        x = percentage * this.dim.width + this.dim.offset / 2;
+        x = percentage * this.dim.width;
         y = 0;
       } else {
         radians = (percentage * 2 + 0.5) * Math.PI;
