@@ -157,14 +157,26 @@
       return this;
     };
 
-    Renderer.prototype.limit = function(value) {
-      return Math.max(Math.min(value, this.granger.data.max), this.granger.data.min);
+    Renderer.prototype.limit = function(value, min, max) {
+      if (min == null) {
+        min = this.granger.data.min;
+      }
+      if (max == null) {
+        max = this.granger.data.max;
+      }
+      return Math.max(Math.min(value, max), min);
     };
 
     Renderer.prototype.valueByPoint = function(x, y) {
       var abs, offset, percentage, radians;
       if (this.isSingleVector()) {
         percentage = x / (this.dim.radius * 2);
+        if (percentage > 1) {
+          percentage = 1;
+        }
+        if (percentage < 0) {
+          percentage = 0;
+        }
       } else {
         abs = this.pointByAngle(x, y);
         offset = -Math.PI / 2;
@@ -179,8 +191,8 @@
 
     Renderer.prototype.pointByValue = function(value) {
       var percentage, radians, x, y;
-      percentage = (value - this.granger.data.min) / (this.granger.data.max - this.granger.data.min);
-      if (this.isSingleVector) {
+      percentage = this.limit((value - this.granger.data.min) / (this.granger.data.max - this.granger.data.min), 0, 1);
+      if (this.isSingleVector()) {
         x = percentage * this.dim.width + this.dim.offset / 2;
         y = 0;
       } else {

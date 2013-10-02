@@ -91,12 +91,14 @@ class Renderer
     @sync x, y
     @
 
-  limit: (value) ->
-    Math.max(Math.min(value, @granger.data.max), @granger.data.min)
+  limit: (value, min = @granger.data.min, max = @granger.data.max) ->
+    Math.max(Math.min(value, max), min)
 
   valueByPoint: (x, y) ->
     if @isSingleVector()
       percentage = x / (@dim.radius * 2)
+      percentage = 1 if percentage > 1
+      percentage = 0 if percentage < 0
     else
       abs = @pointByAngle x, y
       offset = - Math.PI / 2
@@ -110,8 +112,8 @@ class Renderer
     return @limit(percentage * (@granger.data.max - @granger.data.min) + @granger.data.min)
 
   pointByValue: (value) ->
-    percentage = (value - @granger.data.min) / (@granger.data.max - @granger.data.min)
-    if @isSingleVector
+    percentage = @limit((value - @granger.data.min) / (@granger.data.max - @granger.data.min), 0, 1)
+    if @isSingleVector()
       x = percentage * @dim.width + @dim.offset / 2
       y = 0
     else
