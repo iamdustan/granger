@@ -2,9 +2,19 @@
   "name": "granger",
   "version": "0.1.4",
   "main": "dist/granger.js",
+  "depencencies": {},
   "ignore": [
+    "components",
+    "src",
+    "tests",
     "**/.*",
     "node_modules",
-    "components"
-  ]
+    "Gruntfile.js",
+    "index.html",
+    "karma.conf.js",
+    "Makefile",
+    "package.json"
+  ],
+  "license": "MIT",
+  "authors": ["Dustan Kasten <dustan.kasten@gmail.com>"]
 }
