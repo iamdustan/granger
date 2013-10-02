@@ -51,7 +51,6 @@ class Renderer
         isTap = false
 
       @sync result.x, result.y
-      @draw result.x, result.y
       e.preventDefault()
       return false
 
@@ -114,7 +113,7 @@ class Renderer
   pointByValue: (value) ->
     percentage = @limit((value - @granger.data.min) / (@granger.data.max - @granger.data.min), 0, 1)
     if @isSingleVector()
-      x = percentage * @dim.width + @dim.offset / 2
+      x = percentage * @dim.width
       y = 0
     else
       radians = (percentage * 2 + 0.5) * Math.PI
